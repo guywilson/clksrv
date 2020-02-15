@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Admin Console</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css">
+    </head>
+    <body>
+      <h1 style="text-align: center">Admin Console</h1>
+      <p>&nbsp;
+      <div class="centred-outer">
+        <div class="centred-inner">
+        <p class="pretty-frame" style="line-height: 1.5">
+          <button class="btn" onclick="getHREF('home')">Home</button>
+          <button class="btn" onclick="getHREF('command')">Issue Command</button>
+          <button class="btn" onclick="getHREF('calibration')">Calibration</button>
+        </p>
+        </div>
+  
+        <script>
+          function getHREF(ref) {
+            if (ref == 'home') {
+              window.location.href = "/";
+            }
+            else if (ref == 'command') {
+              window.location.href = "/cmd/cmd.html";
+            }
+            else if (ref == 'calibration') {
+              window.location.href = "/calib/calibration.html";
+            }
+          }
+        </script>
+        </div>
+        <div class="container">
+          <table style="width: 80%; margin-left: auto; margin-right: auto">
+            <tr>
+              <td style="padding: 8px">
+                <table class="pretty-table">
+                  <tr>
+                    <td class="column-heading" style="text-align: left"><font size="4"><b>Weather Controller</b></font></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell" style="text-align: left"><font size="3">v1.6.011 date [2019-11-09 21:32:35]</font></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell" style="text-align: left"><font size="3"><b>Uptime</b></font></td>
+                    <td class="table-cell" style="text-align: right"><font size="3">0 days, 0 hours, 1 minute, 32 seconds</font></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell" style="text-align: left"><font size="3"><b>Core temperature</b></font></td>
+                    <td class="table-cell" style="text-align: right"><font size="3">-299.00C</font></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px">
+                <table class="pretty-table">
+                  <tr>
+                    <td class="column-heading" style="text-align: left"><font size="4"><b>AVR</b></font></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell" style="text-align: left"><font size="3">v1.4.001 date [2019-09-27 08:13:53]</font></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell" style="text-align: left"><font size="3"><b>Uptime</b></font></td>
+                    <td class="table-cell" style="text-align: right"><font size="3">8 days, 3 hours, 9 minutes, 20 seconds</font></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell" style="text-align: left"><font size="3"><b>Messages processed</b></font></td>
+                    <td class="table-cell" style="text-align: right"><font size="3">92</font></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell" style="text-align: left"><font size="3"><b>CPU %</b></font></td>
+                    <td class="table-cell" style="text-align: right"><font size="3">0.077%</font></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px">
+                <table class="pretty-table">
+                  <tr>
+                    <td class="column-heading" style="text-align: left"><font size="4"><b>RTScheduler</b></font></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell" style="text-align: left"><font size="3">v1.2.001 date [2019-07-30 17:37:20]</font></td>
+                  </tr>
+                  <tr>
+                    <td class="table-cell" style="text-align: left"><font size="3"><b>Tasks run</b></font></td>
+                    <td class="table-cell" style="text-align: right"><font size="3">491792</font></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+    </body>
+</html>

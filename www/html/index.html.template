@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Cloak</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css">
+    </head>
+    <body>
+      <h1 style="text-align: center">Choose file</h1>
+      <p>&nbsp;
+      <div class="centred-outer">
+        <script>
+          function getHREF(ref) {
+            if (ref == 'home') {
+              window.location.href = "/";
+            }
+            else if (ref == 'load-file') {
+              window.location.href = "/load-image.html";
+            }
+          }
+        </script>
+        </div>
+        <div class="container">
+          <table style="width: 100%; margin-left: auto; margin-right: auto">
+            <tr>
+              <td>
+                <input type="text" id="inputFile">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h1> Browse </h1>
+                <button class="fancy-button" onclick="getHREF('set_input_file')">
+              </td>
+            </tr>
+          </table>
+        </div>
+    </body>
+</html>
