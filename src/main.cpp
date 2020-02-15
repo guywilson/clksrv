@@ -198,6 +198,9 @@ int main(int argc, char *argv[])
 				else if (strcmp(&argv[i][1], "cfg") == 0) {
 					pszConfigFileName = strdup(&argv[++i][0]);
 				}
+				else if (strcmp(&argv[i][1], "log") == 0) {
+					pszLogFileName = strdup(&argv[++i][0]);
+				}
 				else if (strcmp(&argv[i][1], "-dump-config") == 0) {
 					isDumpConfig = true;
 				}

@@ -54,12 +54,11 @@ static struct mg_serve_http_opts getHTMLOpts()
 {
 	static struct mg_serve_http_opts opts;
 
-	ConfigManager & cfg = ConfigManager::getInstance();
 	WebAdmin & web = WebAdmin::getInstance();
 
 	opts.document_root = web.getHTMLDocRoot();
 	opts.enable_directory_listing = "no";
-	opts.global_auth_file = cfg.getValue("admin.authfile");
+	opts.global_auth_file = NULL;
 
 	return opts;
 }
@@ -68,12 +67,11 @@ static struct mg_serve_http_opts getCSSOpts()
 {
 	static struct mg_serve_http_opts opts;
 
-	ConfigManager & cfg = ConfigManager::getInstance();
 	WebAdmin & web = WebAdmin::getInstance();
 
 	opts.document_root = web.getCSSDocRoot();
 	opts.enable_directory_listing = "no";
-	opts.global_auth_file = cfg.getValue("admin.authfile");
+	opts.global_auth_file = NULL;
 
 	return opts;
 }
