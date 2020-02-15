@@ -31,6 +31,7 @@ POSTCOMPILE = @ mv -f $(DEP)/$*.Td $(DEP)/$*.d
 
 CPPFLAGS = -c -O2 -Wall -pedantic -std=c++11
 CFLAGS = -c -O2 -Wall -pedantic
+MGFLAGS=-DMG_ENABLE_SSL
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP)/$*.Td
 
 # Libraries
