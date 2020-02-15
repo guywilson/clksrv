@@ -1,8 +1,5 @@
-#include <string>
-#include <regex>
 #include <stdint.h>
 #include <unistd.h>
-#include <curl/curl.h>
 
 #include "configmgr.h"
 #include "logger.h"
