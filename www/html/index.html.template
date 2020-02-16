@@ -14,6 +14,9 @@
             if (ref == 'home') {
               window.location.href = "/";
             }
+            else if (ref == 'browse-file') {
+              window.location.href = "/load-image.html";
+            }
             else if (ref == 'load-file') {
               window.location.href = "/load-image.html";
             }
@@ -24,15 +27,20 @@
           <table style="width: 50%; margin-left: auto; margin-right: auto">
             <tr>
               <td>
-                <input type="text" id="inputFile">
-              </td>
-              <td>
-                <a class="fancy-button">Browse</a>
+                <label for="secret-file" style="color: blanchedalmond;font-size: 16px;">Select a secret file:</label>
+                <input type="file" id="secret-file" name="secret-file" style="color: blanchedalmond;"><br><br>
               </td>
             </tr>
             <tr>
               <td>
-                Cloak v<tmpl_var clk-version> date [<tmpl_var clk-builddate>]
+              </td>
+              <td>
+                <a class="fancy-button" onclick="getHREF('load-file')">Next</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b style="color: blanchedalmond;font-size: 12px;">Cloak v<tmpl_var clk-version> date [<tmpl_var clk-builddate>]</b>
               </td>
             </tr>
           </table>
