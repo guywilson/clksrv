@@ -4,3 +4,4 @@
 clksrv.pid
 clksrv.log
 www/html/*.html
+www/html/.DS_Store

@@ -102,16 +102,27 @@ h1 {
 }
 
 .fancy-button {
-    margin:10px;
-    position:relative;
-    width:120px;
-    height:40px;
-    -webkit-appearance: none;
-    background: linear-gradient(0deg, #333, #000);
-    outline: none;
-    border-radius: 20px;
-    box-shadow: 0 0 0 4px #353535, 0 0 0 5px #3e3e3e, inset 0 0 10px rgba(0,0,0,1);
-  }
+	box-shadow:inset 0px 34px 18px -15px green;
+	background-color:forestgreen;
+	border-radius:10px;
+	border:1px solid #241d13;
+	display:inline-block;
+	cursor:pointer;
+	color:aliceblue;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:20px;
+	font-weight:bold;
+	padding:9px 28px;
+	text-decoration:none;
+	text-shadow:0px -1px 20px #7a2a1d;
+}
+.fancy-button:hover {
+	background-color:rgb(41, 168, 90);
+}
+.fancy-button:active {
+	position:relative;
+	top:1px;
+}
 
 /* Style inputs, select elements and textareas */
 input[type=text], select, textarea {

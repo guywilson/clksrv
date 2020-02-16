@@ -21,16 +21,18 @@
         </script>
         </div>
         <div class="container">
-          <table style="width: 100%; margin-left: auto; margin-right: auto">
+          <table style="width: 50%; margin-left: auto; margin-right: auto">
             <tr>
               <td>
                 <input type="text" id="inputFile">
               </td>
+              <td>
+                <a class="fancy-button">Browse</a>
+              </td>
             </tr>
             <tr>
               <td>
-                <h1> Browse </h1>
-                <button class="fancy-button" onclick="getHREF('set_input_file')">
+                Cloak v<tmpl_var clk-version> date [<tmpl_var clk-builddate>]
               </td>
             </tr>
           </table>

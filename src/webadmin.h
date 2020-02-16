@@ -42,10 +42,10 @@ public:
 	void		initListener();
 	void		listen();
 
-	char *		getHTMLDocRoot() {
+	const char *		getHTMLDocRoot() {
 		return this->szHTMLDocRoot;
 	}
-	char *		getCSSDocRoot() {
+	const char *		getCSSDocRoot() {
 		return this->szCSSDocRoot;
 	}
 };

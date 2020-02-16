@@ -94,7 +94,7 @@ void WebAdmin::initListener()
 
 	log.logStatus("Setting up listener on port %s", szPort);
 
-#ifdef MG_ENABLE_SSL
+#if MG_ENABLE_SSL
 	if (cfg.getValueAsBoolean("admin.issecure")) {
 		opts.ssl_cert = cfg.getValue("admin.sslcert");
 		opts.ssl_key = cfg.getValue("admin.sslkey");

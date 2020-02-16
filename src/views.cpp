@@ -18,14 +18,14 @@ extern "C" {
 
 using namespace std;
 
-static char * getMethod(struct http_message * message)
+const char * getMethod(struct http_message * message)
 {
-	char *				pszMethod;
+	static char *		pszMethod;
 
 	pszMethod = (char *)malloc(message->method.len + 1);
 
 	if (pszMethod == NULL) {
-		throw clk_error("Failed to allocate memory for method...", __FILE__, __LINE__);
+		throw clk_error("Failled to allocate memory for method", __FILE__, __LINE__);
 	}
 
 	memcpy(pszMethod, message->method.p, message->method.len);
@@ -34,14 +34,14 @@ static char * getMethod(struct http_message * message)
 	return pszMethod;
 }
 
-static char * getURI(struct http_message * message)
+const char * getURI(struct http_message * message)
 {
-	char *				pszURI;
+	static char *		pszURI;
 
 	pszURI = (char *)malloc(message->uri.len + 1);
 
 	if (pszURI == NULL) {
-		throw clk_error("Failed to allocate memory for URI...", __FILE__, __LINE__);
+		throw clk_error("Failled to allocate memory for URI", __FILE__, __LINE__);
 	}
 
 	memcpy(pszURI, message->uri.p, message->uri.len);
@@ -50,7 +50,7 @@ static char * getURI(struct http_message * message)
 	return pszURI;
 }
 
-static struct mg_serve_http_opts getHTMLOpts()
+struct mg_serve_http_opts getHTMLOpts()
 {
 	static struct mg_serve_http_opts opts;
 
@@ -63,9 +63,9 @@ static struct mg_serve_http_opts getHTMLOpts()
 	return opts;
 }
 
-static struct mg_serve_http_opts getCSSOpts()
+struct mg_serve_http_opts getCSSOpts()
 {
-	static struct mg_serve_http_opts opts;
+	struct mg_serve_http_opts opts;
 
 	WebAdmin & web = WebAdmin::getInstance();
 
@@ -79,12 +79,13 @@ static struct mg_serve_http_opts getCSSOpts()
 void homeViewHandler(struct mg_connection * connection, int event, void * p)
 {
 	struct http_message *			message;
-	char *							pszMethod;
-	char *							pszURI;
-	const char *					pszClkVersion = "";
-	const char *					pszClkBuildDate = "";
+	struct mg_serve_http_opts 		opts;
+	const char *					pszMethod;
+	const char *					pszURI;
 
 	Logger & log = Logger::getInstance();
+
+	memset(&opts, 0, sizeof(opts));
 
 	switch (event) {
 		case MG_EV_HTTP_REQUEST:
@@ -101,10 +102,10 @@ void homeViewHandler(struct mg_connection * connection, int event, void * p)
 				log.logInfo("Serving file '%s'", pszURI);
 
 				if (str_endswith(pszURI, "/") > 0) {
-					pszClkVersion = getVersion();
-					pszClkBuildDate = getBuildDate();
+					string clkVersion = getVersion();
+					string clkBuildDate = getBuildDate();
 
-					log.logInfo("Got Clk version %s [%s]", pszClkVersion, pszClkBuildDate);
+					log.logInfo("Got Clk version %s [%s]", clkVersion.c_str(), clkBuildDate.c_str());
 
 					string htmlFileName(web.getHTMLDocRoot());
 					htmlFileName.append(pszURI);
@@ -117,22 +118,29 @@ void homeViewHandler(struct mg_connection * connection, int event, void * p)
 
 					tmpl::html_template templ(templateFileName);
 
-					templ("clk-version") = pszClkVersion;
-					templ("clk-builddate") = pszClkBuildDate;
+					templ("clk-version") = clkVersion;
+					templ("clk-builddate") = clkBuildDate;
 
 					templ.Process();
+
+					log.logDebug("Processed template file...");
 
 					fstream fs;
 					fs.open(htmlFileName, ios::out);
 					fs << templ;
 					fs.close();
+
+					log.logDebug("Written html file %s", htmlFileName.c_str());
 				}
 
-				mg_serve_http(connection, message, getHTMLOpts());
+				opts.document_root = web.getHTMLDocRoot();
+				opts.enable_directory_listing = "no";
+				opts.global_auth_file = NULL;
+				opts.ip_acl = NULL;
+
+				mg_serve_http(connection, message, opts);
 			}
 
-			free(pszMethod);
-			free(pszURI);
 			break;
 
 		default:
@@ -143,11 +151,14 @@ void homeViewHandler(struct mg_connection * connection, int event, void * p)
 void cssHandler(struct mg_connection * connection, int event, void * p)
 {
 	struct http_message *			message;
-	char *							pszMethod;
-	char *							pszURI;
+	struct mg_serve_http_opts 		opts;
+	const char *					pszMethod;
+	const char *					pszURI;
 
 	Logger & log = Logger::getInstance();
 
+	memset(&opts, 0, sizeof(opts));
+	
 	switch (event) {
 		case MG_EV_HTTP_REQUEST:
 			message = (struct http_message *)p;
@@ -160,14 +171,16 @@ void cssHandler(struct mg_connection * connection, int event, void * p)
 			if (strncmp(pszMethod, "GET", 3) == 0) {
 				log.logInfo("Serving file '%s'", pszURI);
 
-				mg_serve_http(connection, message, getCSSOpts());
+				WebAdmin & web = WebAdmin::getInstance();
+
+				opts.document_root = web.getCSSDocRoot();
+				opts.enable_directory_listing = "no";
+				opts.global_auth_file = NULL;
+				opts.ip_acl = NULL;
+
+				mg_serve_http(connection, message, opts);
 			}
 
-			free(pszMethod);
-			free(pszURI);
-
-			mg_printf(connection, "HTTP/1.1 200 OK");
-			connection->flags |= MG_F_SEND_AND_CLOSE;
 			break;
 
 		default:
