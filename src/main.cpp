@@ -32,6 +32,7 @@ void printUsage(char * pszAppName)
 	printf("   -h/?             Print this help\n");
 	printf("   -version         Print the program version\n");
 	printf("   -cfg configfile  Specify the cfg file, default is ./webconfig.cfg\n");
+    printf("   -log logfile     Specify the log file, default is stdout\n");
 	printf("   -d               Daemonise this application\n");
 	printf("\n");
 }
