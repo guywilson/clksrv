@@ -27,8 +27,11 @@
           <table style="width: 50%; margin-left: auto; margin-right: auto">
             <tr>
               <td>
-                <label for="secret-file" style="color: blanchedalmond;font-size: 16px;">Select a secret file:</label>
-                <input type="file" id="secret-file" name="secret-file" style="color: blanchedalmond;"><br><br>
+                <form method="POST" action="/upload" enctype="multipart/form-data">
+                  <label for="secret-file" style="color: blanchedalmond;font-size: 16px;">Select a secret file:</label>
+                  <input id="secret-file" type="file" name="secret-file" style="color: blanchedalmond;">
+                  <input type="submit" value="Upload">
+                </form>
               </td>
             </tr>
             <tr>

@@ -1,5 +1,6 @@
 /build
 /dep
+/upload
 /clksrv
 clksrv.pid
 clksrv.log

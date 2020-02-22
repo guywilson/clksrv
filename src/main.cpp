@@ -322,6 +322,7 @@ int main(int argc, char *argv[])
 	}
 
     web.registerHandler("/", homeViewHandler);
+    web.registerHandler("/upload", uploadCmdHandler);
     web.registerHandler("/css", cssHandler);
 
 	/*

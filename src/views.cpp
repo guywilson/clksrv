@@ -18,6 +18,8 @@ extern "C" {
 
 using namespace std;
 
+#define MG_ENABLE_HTTP_STREAMING_MULTIPART			1
+
 const char * getMethod(struct http_message * message)
 {
 	static char *		pszMethod;
@@ -41,7 +43,7 @@ const char * getURI(struct http_message * message)
 	pszURI = (char *)malloc(message->uri.len + 1);
 
 	if (pszURI == NULL) {
-		throw clk_error("Failled to allocate memory for URI", __FILE__, __LINE__);
+		throw clk_error("Failled to alocate memory for URI", __FILE__, __LINE__);
 	}
 
 	memcpy(pszURI, message->uri.p, message->uri.len);
@@ -74,6 +76,36 @@ struct mg_serve_http_opts getCSSOpts()
 	opts.global_auth_file = NULL;
 
 	return opts;
+}
+
+struct mg_str fileUploadCallback(struct mg_connection * connection, struct mg_str fileName)
+{
+	struct mg_str		response;
+	const char *		uploadDir;
+	char *				pszFilePath;
+
+	ConfigManager cfg = ConfigManager::getInstance();
+	Logger log = Logger::getInstance();
+
+	uploadDir = cfg.getValue("admin.uploaddir");
+
+	log.logDebug("Upload path = '%s' filename = '%s'", uploadDir, fileName.p);
+
+	pszFilePath = (char *)malloc(strlen(uploadDir) + fileName.len + 8);
+
+	if (pszFilePath == NULL) {
+		throw clk_error("Failed to allocate memory for upload file path");
+	}
+
+	strcpy(pszFilePath, uploadDir);
+	strcat(pszFilePath, "/");
+	memcpy(&pszFilePath[strlen(pszFilePath)], fileName.p, fileName.len);
+	pszFilePath[strlen(uploadDir) + fileName.len + 1] = 0;
+
+	response.p = pszFilePath;
+	response.len = strlen(pszFilePath);
+
+	return response;
 }
 
 void homeViewHandler(struct mg_connection * connection, int event, void * p)
@@ -141,6 +173,46 @@ void homeViewHandler(struct mg_connection * connection, int event, void * p)
 				mg_serve_http(connection, message, opts);
 			}
 
+			break;
+
+		default:
+			break;
+	}
+}
+
+void uploadCmdHandler(struct mg_connection * connection, int event, void * p)
+{
+	struct http_message *			message;
+	struct mg_serve_http_opts 		opts;
+
+	Logger & log = Logger::getInstance();
+
+	memset(&opts, 0, sizeof(opts));
+
+	WebAdmin & web = WebAdmin::getInstance();
+
+	switch (event) {
+		case MG_EV_HTTP_PART_BEGIN:
+		case MG_EV_HTTP_PART_DATA:
+		case MG_EV_HTTP_PART_END:
+			message = (struct http_message *)p;
+
+			log.logDebug("Uploading file...");
+
+			mg_file_upload_handler(connection, event, p, fileUploadCallback);
+
+			opts.document_root = web.getHTMLDocRoot();
+			opts.enable_directory_listing = "no";
+			opts.global_auth_file = NULL;
+			opts.ip_acl = NULL;
+
+			mg_http_send_redirect(
+							connection, 
+							302, 
+							mg_mk_str("/"), 
+							mg_mk_str(NULL));
+
+			connection->flags |= MG_F_SEND_AND_CLOSE;
 			break;
 
 		default:
