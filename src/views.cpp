@@ -180,6 +180,66 @@ void homeViewHandler(struct mg_connection * connection, int event, void * p)
 	}
 }
 
+void browseViewHandler(struct mg_connection * connection, int event, void * p)
+{
+	struct http_message *			message;
+	struct mg_serve_http_opts 		opts;
+	char							szAction[8];
+	const char *					pszMethod;
+	const char *					pszURI;
+
+	Logger & log = Logger::getInstance();
+
+	memset(&opts, 0, sizeof(opts));
+
+	switch (event) {
+		case MG_EV_HTTP_REQUEST:
+			message = (struct http_message *)p;
+
+			pszMethod = getMethod(message);
+			pszURI = getURI(message);
+
+			mg_get_http_var(&message->uri, "action", szAction, 8);
+
+			log.logInfo("Got %s request for '%s'", pszMethod, pszURI);
+	
+			if (strncmp(pszMethod, "GET", 3) == 0) {
+				WebAdmin & web = WebAdmin::getInstance();
+
+				log.logInfo("Serving file '%s'", pszURI);
+
+				string htmlFileName(web.getHTMLDocRoot());
+				htmlFileName.append(pszURI);
+				htmlFileName.append(".html");
+
+				string templateFileName(htmlFileName);
+				templateFileName.append(".template");
+
+				log.logDebug("Opening template file [%s]", templateFileName.c_str());
+
+				tmpl::html_template templ(templateFileName);
+
+				templ.Process();
+
+				log.logDebug("Processed template file...");
+
+				fstream fs;
+				fs.open(htmlFileName, ios::out);
+				fs << templ;
+				fs.close();
+
+				log.logDebug("Written html file %s", htmlFileName.c_str());
+
+				mg_http_serve_file(connection, message, htmlFileName.c_str(), mg_mk_str("text/html"), mg_mk_str(""));
+			}
+
+			break;
+
+		default:
+			break;
+	}
+}
+
 void uploadCmdHandler(struct mg_connection * connection, int event, void * p)
 {
 	struct http_message *			message;
