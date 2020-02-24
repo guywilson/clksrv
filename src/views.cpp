@@ -199,9 +199,13 @@ void browseViewHandler(struct mg_connection * connection, int event, void * p)
 			pszMethod = getMethod(message);
 			pszURI = getURI(message);
 
-			mg_get_http_var(&message->uri, "action", szAction, 8);
+			mg_get_http_var(&message->query_string, "action", szAction, 8);
 
-			log.logInfo("Got %s request for '%s'", pszMethod, pszURI);
+			/*
+			** To-do: Create a session object to store the user action and file names...
+			*/
+
+			log.logInfo("Got %s request for '%s' with action '%s'", pszMethod, pszURI, szAction);
 	
 			if (strncmp(pszMethod, "GET", 3) == 0) {
 				WebAdmin & web = WebAdmin::getInstance();
