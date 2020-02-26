@@ -20,6 +20,13 @@ using namespace std;
 
 #define MG_ENABLE_HTTP_STREAMING_MULTIPART			1
 
+typedef struct
+{
+	char *			pszFileName;
+	char *			pszFilePath;
+}
+ImageUserData;
+
 const char * getMethod(struct http_message * message)
 {
 	static char *		pszMethod;
@@ -82,7 +89,9 @@ struct mg_str fileUploadCallback(struct mg_connection * connection, struct mg_st
 {
 	struct mg_str		response;
 	const char *		uploadDir;
+	char *				pszFileName;
 	char *				pszFilePath;
+	ImageUserData		userData;
 
 	ConfigManager cfg = ConfigManager::getInstance();
 	Logger log = Logger::getInstance();
@@ -91,19 +100,32 @@ struct mg_str fileUploadCallback(struct mg_connection * connection, struct mg_st
 
 	log.logDebug("Upload path = '%s' filename = '%s'", uploadDir, fileName.p);
 
+	pszFileName = (char *)malloc(fileName.len + 1);
+
+	if (pszFileName == NULL) {
+		throw clk_error("Failed to allocate memory for upload file name");
+	}
+
 	pszFilePath = (char *)malloc(strlen(uploadDir) + fileName.len + 8);
 
 	if (pszFilePath == NULL) {
 		throw clk_error("Failed to allocate memory for upload file path");
 	}
 
+	memcpy(pszFileName, fileName.p, fileName.len);
+	pszFileName[fileName.len] = 0;
+
 	strcpy(pszFilePath, uploadDir);
 	strcat(pszFilePath, "/");
-	memcpy(&pszFilePath[strlen(pszFilePath)], fileName.p, fileName.len);
-	pszFilePath[strlen(uploadDir) + fileName.len + 1] = 0;
+	strcat(pszFilePath, pszFileName);
 
 	response.p = pszFilePath;
 	response.len = strlen(pszFilePath);
+
+	userData.pszFileName = pszFileName;
+	userData.pszFilePath = pszFilePath;
+
+	connection->user_data = &userData;
 
 	return response;
 }
@@ -180,7 +202,7 @@ void homeViewHandler(struct mg_connection * connection, int event, void * p)
 	}
 }
 
-void browseViewHandler(struct mg_connection * connection, int event, void * p)
+void browseFileViewHandler(struct mg_connection * connection, int event, void * p)
 {
 	struct http_message *			message;
 	struct mg_serve_http_opts 		opts;
@@ -244,12 +266,85 @@ void browseViewHandler(struct mg_connection * connection, int event, void * p)
 	}
 }
 
+void browseImageViewHandler(struct mg_connection * connection, int event, void * p)
+{
+	struct http_message *			message;
+	struct mg_serve_http_opts 		opts;
+	char							szAction[8];
+	const char *					pszMethod;
+	const char *					pszURI;
+
+	Logger & log = Logger::getInstance();
+
+	memset(&opts, 0, sizeof(opts));
+
+	switch (event) {
+		case MG_EV_HTTP_REQUEST:
+			message = (struct http_message *)p;
+
+			pszMethod = getMethod(message);
+			pszURI = getURI(message);
+
+			mg_get_http_var(&message->query_string, "action", szAction, 8);
+
+			/*
+			** To-do: Create a session object to store the user action and file names...
+			*/
+
+			log.logInfo("Got %s request for '%s' with action '%s'", pszMethod, pszURI, szAction);
+	
+			if (strncmp(pszMethod, "GET", 3) == 0) {
+				WebAdmin & web = WebAdmin::getInstance();
+
+				log.logInfo("Serving file '%s'", pszURI);
+
+				string htmlFileName(web.getHTMLDocRoot());
+				htmlFileName.append(pszURI);
+				htmlFileName.append(".html");
+
+				string templateFileName(htmlFileName);
+				templateFileName.append(".template");
+
+				log.logDebug("Opening template file [%s]", templateFileName.c_str());
+
+				tmpl::html_template templ(templateFileName);
+
+				if (connection->user_data != nullptr) {
+					ImageUserData * imgData = (ImageUserData *)connection->user_data;
+
+					templ("image-name") = imgData->pszFileName;
+					templ("image-src") = imgData->pszFilePath;
+				}
+				else {
+					templ("image-name") = "browse image";
+					templ("image-src") = "";
+				}
+
+				templ.Process();
+
+				log.logDebug("Processed template file...");
+
+				fstream fs;
+				fs.open(htmlFileName, ios::out);
+				fs << templ;
+				fs.close();
+
+				log.logDebug("Written html file %s", htmlFileName.c_str());
+
+				mg_http_serve_file(connection, message, htmlFileName.c_str(), mg_mk_str("text/html"), mg_mk_str(""));
+			}
+
+			break;
+
+		default:
+			break;
+	}
+}
+
 void uploadCmdHandler(struct mg_connection * connection, int event, void * p)
 {
 	struct http_message *			message;
 	struct mg_serve_http_opts 		opts;
-
-	Logger & log = Logger::getInstance();
 
 	memset(&opts, 0, sizeof(opts));
 
@@ -261,8 +356,6 @@ void uploadCmdHandler(struct mg_connection * connection, int event, void * p)
 		case MG_EV_HTTP_PART_END:
 			message = (struct http_message *)p;
 
-			log.logDebug("Uploading file...");
-
 			mg_file_upload_handler(connection, event, p, fileUploadCallback);
 
 			opts.document_root = web.getHTMLDocRoot();
@@ -273,7 +366,7 @@ void uploadCmdHandler(struct mg_connection * connection, int event, void * p)
 			mg_http_send_redirect(
 							connection, 
 							302, 
-							mg_mk_str("/"), 
+							mg_mk_str("/browse-image?action=extract"), 
 							mg_mk_str(NULL));
 
 			connection->flags |= MG_F_SEND_AND_CLOSE;

@@ -322,8 +322,8 @@ int main(int argc, char *argv[])
 	}
 
     web.registerHandler("/", homeViewHandler);
-    web.registerHandler("/browse-file", browseViewHandler);
-    web.registerHandler("/browse-image", browseViewHandler);
+    web.registerHandler("/browse-file", browseFileViewHandler);
+    web.registerHandler("/browse-image", browseImageViewHandler);
     web.registerHandler("/upload", uploadCmdHandler);
 
     web.registerHandler("/css", cssHandler);

@@ -112,6 +112,8 @@ void WebAdmin::initListener()
 		throw clk_error(clk_error::buildMsg("Failed to bind to port %s", szPort), __FILE__, __LINE__);
 	}
 
+	connection->user_data = nullptr;
+	
 	log.logStatus("Bound default handler to %s...", szPort);
 
 	mg_set_protocol_http_websocket(connection);
